@@ -417,12 +417,50 @@ function endGesture(isDragging: boolean, x: number, y: number) {
 }
 
 function triggerClick(x: number, y: number) {
+  if (!rotatorRef.value) {
+    return
+  }
+
+  // Check if clicked on a specific option
+  const rotatorChildren = Array.from(rotatorRef.value.children)
+  for (let i = 0; i < rotatorChildren.length; i++) {
+    const itemEl = rotatorChildren[i] as HTMLElement
+    const rect = itemEl.getBoundingClientRect()
+
+    // Check if click is within this option's boundaries
+    if (
+      rect.left <= x &&
+      x <= rect.right &&
+      rect.top <= y &&
+      y <= rect.bottom
+    ) {
+      // Don't select disabled options
+      if (internalOptions.value[i]?.disabled) {
+        continue
+      }
+
+      // If item is valid and different from current, select it
+      if (internalIndex.value !== i && internalOptions.value[i]) {
+        internalIndex.value = i
+        const nextValue = internalOptions.value[i].value
+        emit('end', nextValue)
+        emit('click', nextValue)
+        emitUpdateModelValue(nextValue)
+        scrollTo(findScrollByIndex(i))
+        return
+      }
+    }
+  }
+
+  // If no specific option was clicked, check if clicked on left/right areas
   if (!layerLeftRef.value || !layerRightRef.value) {
     return
   }
+
   const leftRect = layerLeftRef.value.getBoundingClientRect()
   const rightRect = layerRightRef.value.getBoundingClientRect()
   let nextIndex = internalIndex.value
+
   if (
     leftRect.left <= x &&
     x <= leftRect.right &&
@@ -456,6 +494,7 @@ function triggerClick(x: number, y: number) {
       nextIndex++
     }
   }
+
   if (internalIndex.value !== nextIndex && internalOptions.value[nextIndex]) {
     internalIndex.value = nextIndex
     const nextValue = internalOptions.value[nextIndex].value

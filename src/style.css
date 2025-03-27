@@ -28,6 +28,7 @@
   height: 100%;
   white-space: nowrap;
   color: #333;
+  cursor: pointer; /* Add pointer cursor to indicate clickable */
 }
 
 .vue-horizontal-scroll-picker-item[aria-selected='true'] {
@@ -37,6 +38,7 @@
 .vue-horizontal-scroll-picker-item[data-value=''],
 .vue-horizontal-scroll-picker-item[aria-disabled='true'] {
   color: #ccc;
+  cursor: not-allowed;
 }
 
 .vue-horizontal-scroll-picker-item[data-value=''][aria-selected='true'],
