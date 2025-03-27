@@ -1,15 +1,14 @@
 {
-  "name": "vue-scroll-picker",
+  "name": "@webrsb/vue-scroll-picker",
   "version": "2.0.0",
   "description": "iOS Style Scroll Picker Component for Vue 3. Support All Gestures of Mouse(also MouseWheel) and Touch.",
   "author": "Changwan Jun",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git://github.com/wan2land/vue-scroll-picker.git"
+    "url": "git://github.com/ricky-lee-athena/vue-scroll-picker.git"
   },
   "scripts": {
-    "prepack": "npm run build",
     "test": "npm run test:eslint && npm run test:vitest && npm run build",
     "test:eslint": "eslint",
     "test:vitest": "vitest run",
@@ -64,5 +63,6 @@
     "vitest": "^3.0.4",
     "vitest-browser-vue": "^0.2.0",
     "vue": "3.5.13"
-  }
+  },
+  "packageManager": "yarn@1.22.22+sha512.a6b2f7906b721bba3d67d4aff083df04dad64c399707841b7acf00f6b133b7ac24255f2652fa22ae3534329dc6180534e98d17432037ff6fd140556e2bb3137e"
 }
