@@ -14,9 +14,8 @@ import {
   watch,
 } from 'vue'
 
-export type ScrollPickerValue = string | number | boolean | null
+export type ScrollPickerValue = number
 export interface ScrollPickerOption {
-  name: string
   value: ScrollPickerValue
   disabled?: boolean
 }
@@ -40,14 +39,18 @@ const emit = defineEmits<{
 const props = withDefaults(
   defineProps<{
     modelValue: ScrollPickerValue | undefined
-    options?: ScrollPickerOptionable<T>[]
+    min: number
+    max: number
+    interval: number
+    perGraduationSize?: number
+    // options?: ScrollPickerOptionable<T>[]
     dragSensitivity?: number
     touchSensitivity?: number
     wheelSensitivity?: number
     emptyText?: string
   }>(),
   {
-    options: () => [],
+    perGraduationSize: 3,
     dragSensitivity: 1.7,
     touchSensitivity: 1.7,
     wheelSensitivity: 1,
@@ -61,23 +64,14 @@ defineSlots<{
 }>()
 
 const internalOptions = computed<T[]>(() => {
-  return props.options.map((option) => {
-    if (option === null) {
-      return { value: null, name: '' } as T
-    }
-    switch (typeof option) {
-      case 'string': {
-        return { value: option, name: option } as T
-      }
-      case 'number':
-      case 'boolean': {
-        return { value: option, name: `${option}` } as T
-      }
-    }
-    return option
-  })
-})
+  const options: T[] = []
 
+  for (let i = props.min; i <= props.max; i += props.interval) {
+    options.push({ value: i } as T)
+  }
+
+  return options
+})
 const transitionTimeout = ref<ReturnType<typeof setTimeout> | null>(null)
 
 const internalIndex = ref(
@@ -508,34 +502,25 @@ function cancelGesture() {
         },
       ]"
     >
-      <template v-if="internalOptions.length === 0">
+      <template
+        v-for="(option, optionIndex) in internalOptions"
+        :key="optionIndex"
+      >
         <div
-          key="empty"
           role="option"
           class="vue-horizontal-scroll-picker-item"
-          aria-disabled="true"
-          aria-selected="false"
-        >
-          <slot name="empty" :text="emptyText">
-            {{ emptyText }}
-          </slot>
-        </div>
-      </template>
-      <template v-else>
-        <template
-          v-for="(option, optionIndex) in internalOptions"
-          :key="optionIndex"
+          :aria-disabled="option.disabled"
+          :aria-selected="internalIndex === optionIndex"
+          :data-value="option.value ?? ''"
         >
           <div
-            role="option"
-            class="vue-horizontal-scroll-picker-item"
-            :aria-disabled="option.disabled"
-            :aria-selected="internalIndex === optionIndex"
-            :data-value="option.value ?? ''"
+            v-if="optionIndex % perGraduationSize === 0"
+            style="position: absolute; top: 0"
           >
-            <slot :option="option">{{ option.name }}</slot>
+            <slot :option="option">{{ option.value }}</slot>
           </div>
-        </template>
+          <div>●</div>
+        </div>
       </template>
     </div>
     <div class="vue-horizontal-scroll-picker-layer">

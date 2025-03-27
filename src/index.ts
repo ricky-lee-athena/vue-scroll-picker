@@ -2,7 +2,6 @@ import { App, Component, Plugin } from 'vue'
 
 import VueScrollPicker, {
   type ScrollPickerValue,
-  type ScrollPickerOption,
   type ScrollPickerOptionable,
 } from './components/VueScrollPicker.vue'
 
@@ -25,5 +24,4 @@ export default plugin
 export { VueScrollPicker }
 
 export type VueScrollPickerValue = ScrollPickerValue
-export type VueScrollPickerOption = ScrollPickerOption
 export type VueScrollPickerOptionable<T> = ScrollPickerOptionable<T>

@@ -1,30 +1,18 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import {
-  VueScrollPicker,
-  VueScrollPickerOption,
-  VueScrollPickerValue,
-} from 'vue-scroll-picker'
-import CurrentValue from './CurrentValue.vue'
-import DefaultController from './DefaultController.vue'
+import { VueScrollPicker, VueScrollPickerValue } from 'vue-scroll-picker'
 
-defineProps<{
-  options: VueScrollPickerOption[]
-}>()
-
-const currentValue = ref<VueScrollPickerValue>(null)
+const currentValue = ref<VueScrollPickerValue>(600)
 </script>
 
 <template>
   <div>
-    <div class="controller">
-      <CurrentValue :value="currentValue" />
-      <DefaultController v-model="currentValue" :options="options" />
-    </div>
     <VueScrollPicker
       v-model="currentValue"
       placeholder="Select"
-      :options="options"
+      :min="0"
+      :max="1000"
+      :interval="100"
     />
   </div>
 </template>
