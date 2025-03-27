@@ -29,7 +29,7 @@ function formatMinutesToTime(minutes: number, format: 'HH:mm' | 'HH'): string {
       v-model="currentValue"
       placeholder="Select"
       :min="540"
-      :max="1320"
+      :max="1820"
       :interval="20"
       :per-graduation-size="3"
       :marked-value="markedValue"
@@ -41,9 +41,7 @@ function formatMinutesToTime(minutes: number, format: 'HH:mm' | 'HH'): string {
         {{ formatMinutesToTime(value, 'HH:mm') }}
       </template>
       <template #marked="{ value }">
-        <div class="marked-value">
-          {{ formatMinutesToTime(value, 'HH:mm') }}
-        </div>
+        {{ formatMinutesToTime(value, 'HH:mm') }}
       </template>
     </VueScrollPicker>
   </div>
