@@ -2,8 +2,8 @@
   background-color: rgb(102, 102, 102);
   position: relative;
   width: 100%;
-  height: 3em;
-  overflow: hidden;
+  height: 4em;  /* 增加高度以容納數值顯示 */
+  overflow: visible;  /* 改為 visible 使數值能夠顯示在容器外 */
   user-select: none;
 }
 
@@ -75,8 +75,23 @@
 }
 
 .vue-horizontal-scroll-picker-layer-selection {
-  left: 50%;  /* 修改為精確的中心位置 */
-  right: 50%; /* 修改為精確的中心位置 */
+  left: 50%;
+  right: 50%;
   border-left: 1px solid #007bff;
   border-right: 1px solid #007bff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.vue-horizontal-scroll-picker-current-value {
+  position: absolute;
+  bottom: 0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  z-index: 1;
+  background-color: #007bff;
+  padding: .1em;
+  border-radius: 2px;
 }

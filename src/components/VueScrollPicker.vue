@@ -570,7 +570,11 @@ function cancelGesture() {
       <div
         ref="layerSelectionRef"
         class="vue-horizontal-scroll-picker-layer-selection"
-      ></div>
+      >
+        <div class="vue-horizontal-scroll-picker-current-value">
+          {{ internalOptions[internalIndex]?.value }}
+        </div>
+      </div>
       <div
         ref="layerRightRef"
         class="vue-horizontal-scroll-picker-layer-right"
