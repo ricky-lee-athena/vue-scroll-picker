@@ -23,7 +23,7 @@ export interface ScrollPickerOption {
 
 export type ScrollPickerOptionable<T> = ScrollPickerValue | T
 
-type GestureState = [scrollY: number, clientY: number, isDragging: boolean]
+type GestureState = [scrollX: number, clientX: number, isDragging: boolean]
 
 const EVENT_OPTIONS: AddEventListenerOptions = { passive: false }
 
@@ -92,17 +92,17 @@ const internalIndex = ref(
 let itemOffsets: number[] = []
 
 let scrollOffset = 0
-let scrollY = 0
-let scrollYMax = 0
+let scrollX = 0
+let scrollXMax = 0
 
 let gestureState: GestureState | null = null
 
 const el = shallowRef<HTMLDivElement>()
 
 const rotatorRef = shallowRef<HTMLDivElement>()
-const layerTopRef = shallowRef<HTMLDivElement>()
+const layerLeftRef = shallowRef<HTMLDivElement>()
 const layerSelectionRef = shallowRef<HTMLDivElement>()
-const layerBottomRef = shallowRef<HTMLDivElement>()
+const layerRightRef = shallowRef<HTMLDivElement>()
 
 let resizeObserver: globalThis.ResizeObserver | null = null
 
@@ -173,24 +173,24 @@ function updateItemOffsets() {
 
   // set scrollOffset
   {
-    const { top, bottom } = layerSelectionEl.getBoundingClientRect()
-    const elTop = el.value?.getBoundingClientRect().top ?? 0
-    scrollOffset = (top + bottom) / 2 - elTop
+    const { left, right } = layerSelectionEl.getBoundingClientRect()
+    const elLeft = el.value?.getBoundingClientRect().left ?? 0
+    scrollOffset = (left + right) / 2 - elLeft
   }
 
   // set itemOffsets
   let firstItemOffset = 0
   itemOffsets = Array.from(rotatorEl.children).map((itemRef, index) => {
-    const { top, bottom } = itemRef.getBoundingClientRect()
-    const itemOffset = (top + bottom) / 2
+    const { left, right } = itemRef.getBoundingClientRect()
+    const itemOffset = (left + right) / 2
     if (index === 0) {
-      scrollOffset -= itemOffset - top
+      scrollOffset -= itemOffset - left
       firstItemOffset = itemOffset
     }
     return itemOffset - firstItemOffset
   })
 
-  scrollYMax = Math.max(...itemOffsets)
+  scrollXMax = Math.max(...itemOffsets)
   setScroll(findScrollByIndex(internalIndex.value))
 }
 
@@ -225,12 +225,12 @@ function scrollTo(scroll: number) {
 
 let scrollRaf = null as ReturnType<typeof requestAnimationFrame> | null
 function setScroll(scroll: number) {
-  scrollY = scroll
+  scrollX = scroll
   if (scrollRaf) {
     cancelAnimationFrame(scrollRaf)
   }
   scrollRaf = requestAnimationFrame(() => {
-    rotatorRef.value!.style.top = `${scrollOffset - scroll}px`
+    rotatorRef.value!.style.left = `${scrollOffset - scroll}px`
     scrollRaf = null
   })
   return scroll
@@ -248,10 +248,10 @@ function bounceEffect(value: number, min: number, max: number, tension = 0.2) {
 
 let wheelTimeout: ReturnType<typeof setTimeout> | null = null
 function handleWheel(e: WheelEvent) {
-  if (!wheelTimeout && scrollY <= 0 && e.deltaY < 0) {
+  if (!wheelTimeout && scrollX <= 0 && e.deltaX < 0) {
     return
   }
-  if (!wheelTimeout && scrollY >= scrollYMax && e.deltaY > 0) {
+  if (!wheelTimeout && scrollX >= scrollXMax && e.deltaX > 0) {
     return
   }
 
@@ -259,11 +259,13 @@ function handleWheel(e: WheelEvent) {
     return
   }
   e.preventDefault()
-  const scrollYValue = setScroll(
-    bounceEffect(scrollY + e.deltaY * props.wheelSensitivity, 0, scrollYMax),
+  // Use deltaX for horizontal scrolling, fall back to deltaY if no horizontal scroll is happening
+  const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY
+  const scrollXValue = setScroll(
+    bounceEffect(scrollX + delta * props.wheelSensitivity, 0, scrollXMax),
   )
 
-  const nextIndex = findIndexFromScroll(scrollYValue, true)
+  const nextIndex = findIndexFromScroll(scrollXValue, true)
   const nextOption: ScrollPickerOption | undefined =
     internalOptions.value[nextIndex]
   const nextValue = nextOption?.value
@@ -277,7 +279,7 @@ function handleWheel(e: WheelEvent) {
     clearTimeout(wheelTimeout)
   }
   wheelTimeout = setTimeout(() => {
-    scrollTo(findScrollByIndex(findIndexFromScroll(scrollYValue, false)))
+    scrollTo(findScrollByIndex(findIndexFromScroll(scrollXValue, false)))
     wheelTimeout = null
   }, 100)
 }
@@ -290,8 +292,8 @@ function handleTouchStart(e: TouchEvent) {
     e.preventDefault()
   }
 
-  // TODO multitouch
-  gestureState = [scrollY, e.touches[0].clientY, false]
+  // Track horizontal position for touch
+  gestureState = [scrollX, e.touches[0].clientX, false]
   emit('start')
 
   document.addEventListener('touchmove', handleTouchMove, EVENT_OPTIONS)
@@ -307,7 +309,7 @@ function handleMouseDown(e: MouseEvent) {
     e.preventDefault()
   }
 
-  gestureState = [scrollY, e.clientY, false]
+  gestureState = [scrollX, e.clientX, false]
   emit('start')
 
   document.addEventListener('mousemove', handleMouseMove, EVENT_OPTIONS)
@@ -322,7 +324,8 @@ function handleTouchMove(e: TouchEvent) {
   if (e.cancelable) {
     e.preventDefault()
   }
-  const diff = gestureState[1] - e.touches[0].clientY // TODO multitouch
+  // Calculate horizontal difference
+  const diff = e.touches[0].clientX - gestureState[1]
   if (Math.abs(diff) > 1.5) {
     const nextGestureState = gestureState.slice() as GestureState
     nextGestureState[2] = true
@@ -331,9 +334,9 @@ function handleTouchMove(e: TouchEvent) {
   emitMove(
     setScroll(
       bounceEffect(
-        gestureState[0] + diff * props.touchSensitivity,
+        gestureState[0] - diff * props.touchSensitivity,
         0,
-        scrollYMax,
+        scrollXMax,
       ),
     ),
   )
@@ -346,7 +349,7 @@ function handleMouseMove(e: MouseEvent) {
   if (e.cancelable) {
     e.preventDefault()
   }
-  const diff = gestureState[1] - e.clientY
+  const diff = e.clientX - gestureState[1]
   if (Math.abs(diff) > 1.5) {
     const nextGestureState = gestureState.slice() as GestureState
     nextGestureState[2] = true
@@ -355,18 +358,18 @@ function handleMouseMove(e: MouseEvent) {
   emitMove(
     setScroll(
       bounceEffect(
-        gestureState[0] + diff * props.dragSensitivity,
+        gestureState[0] - diff * props.dragSensitivity,
         0,
-        scrollYMax,
+        scrollXMax,
       ),
     ),
   )
 }
 
-function emitMove(scrollY: number) {
+function emitMove(scrollX: number) {
   emit(
     'move',
-    internalOptions.value[findIndexFromScroll(scrollY, true)]?.value ??
+    internalOptions.value[findIndexFromScroll(scrollX, true)]?.value ??
       undefined,
   )
 }
@@ -408,7 +411,7 @@ function handleTouchEnd(e: TouchEvent) {
 
 function endGesture(isDragging: boolean, x: number, y: number) {
   if (isDragging) {
-    const nextIndex = findIndexFromScroll(scrollY, false)
+    const nextIndex = findIndexFromScroll(scrollX, false)
     const nextValue = internalOptions.value[nextIndex]?.value ?? null
     scrollTo(findScrollByIndex(nextIndex))
     internalIndex.value = nextIndex
@@ -420,20 +423,20 @@ function endGesture(isDragging: boolean, x: number, y: number) {
 }
 
 function triggerClick(x: number, y: number) {
-  if (!layerTopRef.value || !layerBottomRef.value) {
+  if (!layerLeftRef.value || !layerRightRef.value) {
     return
   }
-  const topRect = layerTopRef.value.getBoundingClientRect()
-  const bottomRect = layerBottomRef.value.getBoundingClientRect()
+  const leftRect = layerLeftRef.value.getBoundingClientRect()
+  const rightRect = layerRightRef.value.getBoundingClientRect()
   let nextIndex = internalIndex.value
   if (
-    topRect.left <= x &&
-    x <= topRect.right &&
-    topRect.top <= y &&
-    y <= topRect.bottom
+    leftRect.left <= x &&
+    x <= leftRect.right &&
+    leftRect.top <= y &&
+    y <= leftRect.bottom
   ) {
     if (internalIndex.value === 0) {
-      return // top
+      return // leftmost
     }
     nextIndex--
     while (
@@ -443,13 +446,13 @@ function triggerClick(x: number, y: number) {
       nextIndex--
     }
   } else if (
-    bottomRect.left <= x &&
-    x <= bottomRect.right &&
-    bottomRect.top <= y &&
-    y <= bottomRect.bottom
+    rightRect.left <= x &&
+    x <= rightRect.right &&
+    rightRect.top <= y &&
+    y <= rightRect.bottom
   ) {
     if (internalIndex.value === internalOptions.value.length - 1) {
-      return // bottom
+      return // rightmost
     }
     nextIndex++
     while (
@@ -494,14 +497,14 @@ function cancelGesture() {
 // </Cancel>
 </script>
 <template>
-  <div ref="el" class="vue-scroll-picker">
+  <div ref="el" class="vue-horizontal-scroll-picker">
     <div
       ref="rotatorRef"
       role="listbox"
       :class="[
-        'vue-scroll-picker-rotator',
+        'vue-horizontal-scroll-picker-rotator',
         {
-          'vue-scroll-picker-rotator-transition': transitionTimeout,
+          'vue-horizontal-scroll-picker-rotator-transition': transitionTimeout,
         },
       ]"
     >
@@ -509,7 +512,7 @@ function cancelGesture() {
         <div
           key="empty"
           role="option"
-          class="vue-scroll-picker-item"
+          class="vue-horizontal-scroll-picker-item"
           aria-disabled="true"
           aria-selected="false"
         >
@@ -525,7 +528,7 @@ function cancelGesture() {
         >
           <div
             role="option"
-            class="vue-scroll-picker-item"
+            class="vue-horizontal-scroll-picker-item"
             :aria-disabled="option.disabled"
             :aria-selected="internalIndex === optionIndex"
             :data-value="option.value ?? ''"
@@ -535,13 +538,19 @@ function cancelGesture() {
         </template>
       </template>
     </div>
-    <div class="vue-scroll-picker-layer">
-      <div ref="layerTopRef" class="vue-scroll-picker-layer-top"></div>
+    <div class="vue-horizontal-scroll-picker-layer">
+      <div
+        ref="layerLeftRef"
+        class="vue-horizontal-scroll-picker-layer-left"
+      ></div>
       <div
         ref="layerSelectionRef"
-        class="vue-scroll-picker-layer-selection"
+        class="vue-horizontal-scroll-picker-layer-selection"
       ></div>
-      <div ref="layerBottomRef" class="vue-scroll-picker-layer-bottom"></div>
+      <div
+        ref="layerRightRef"
+        class="vue-horizontal-scroll-picker-layer-right"
+      ></div>
     </div>
   </div>
 </template>

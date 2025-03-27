@@ -1,76 +1,84 @@
-.vue-scroll-picker {
+.vue-horizontal-scroll-picker {
   position: relative;
   width: 100%;
-  height: 10em;
+  height: 3em;
   overflow: hidden;
   user-select: none;
 }
 
-.vue-scroll-picker-rotator {
+.vue-horizontal-scroll-picker-rotator {
   position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(50% - .6em);
+  top: 0;
+  bottom: 0;
+  left: calc(50% - 2em);
+  display: flex;
+  align-items: center;
+  height: 100%;
 }
 
-.vue-scroll-picker-rotator-transition {
-  transition: top ease 150ms;
+.vue-horizontal-scroll-picker-rotator-transition {
+  transition: left ease 150ms;
 }
 
-.vue-scroll-picker-item {
-  text-align: center;
-  line-height: 1.2em;
+.vue-horizontal-scroll-picker-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 1em;
+  height: 100%;
+  white-space: nowrap;
   color: #333;
 }
 
-.vue-scroll-picker-item[aria-selected='true'] {
+.vue-horizontal-scroll-picker-item[aria-selected='true'] {
   color: #007bff;
 }
 
-.vue-scroll-picker-item[data-value=''],
-.vue-scroll-picker-item[aria-disabled='true'] {
+.vue-horizontal-scroll-picker-item[data-value=''],
+.vue-horizontal-scroll-picker-item[aria-disabled='true'] {
   color: #ccc;
 }
 
-.vue-scroll-picker-item[data-value=''][aria-selected='true'],
-.vue-scroll-picker-item[aria-disabled='true'][aria-selected='true'] {
+.vue-horizontal-scroll-picker-item[data-value=''][aria-selected='true'],
+.vue-horizontal-scroll-picker-item[aria-disabled='true'][aria-selected='true'] {
   color: #aaa;
 }
 
-.vue-scroll-picker-layer {
+.vue-horizontal-scroll-picker-layer {
   position: absolute;
   left: 0;
   right: 0;
   top: 0;
   bottom: 0;
+  display: flex;
 }
 
-.vue-scroll-picker-layer-top,
-.vue-scroll-picker-layer-selection,
-.vue-scroll-picker-layer-bottom {
+.vue-horizontal-scroll-picker-layer-left,
+.vue-horizontal-scroll-picker-layer-selection,
+.vue-horizontal-scroll-picker-layer-right {
   position: absolute;
-  left: 0;
-  right: 0;
+  top: 0;
+  bottom: 0;
 }
 
-.vue-scroll-picker-layer-top {
+.vue-horizontal-scroll-picker-layer-left {
   box-sizing: border-box;
-  border-bottom: 1px solid #c8c7cc;
-  background: linear-gradient(180deg,#fff 10%,rgba(255, 255, 255, .7));
-  top: 0;
-  height: calc(50% - 1em);
+  border-right: 1px solid #c8c7cc;
+  background: linear-gradient(90deg, #fff 10%, rgba(255, 255, 255, .7));
+  left: 0;
+  width: calc(50% - 2em);
   cursor: pointer;
 }
 
-.vue-scroll-picker-layer-selection {
-  top: calc(50% - 1em);
-  bottom: calc(50% - 1em);
+.vue-horizontal-scroll-picker-layer-selection {
+  left: calc(50% - 2em);
+  right: calc(50% - 2em);
 }
 
-.vue-scroll-picker-layer-bottom {
-  border-top: 1px solid #c8c7cc;
-  background: linear-gradient(0deg,#fff 10%,rgba(255, 255, 255, .7));
-  bottom: 0;
-  height: calc(50% - 1em);
+.vue-horizontal-scroll-picker-layer-right {
+  border-left: 1px solid #c8c7cc;
+  background: linear-gradient(270deg, #fff 10%, rgba(255, 255, 255, .7));
+  right: 0;
+  width: calc(50% - 2em);
   cursor: pointer;
 }
