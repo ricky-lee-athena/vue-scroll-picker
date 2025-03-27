@@ -10,7 +10,6 @@ import {
   onMounted,
   ref,
   shallowRef,
-  VNode,
   watch,
 } from 'vue'
 
@@ -43,13 +42,14 @@ const props = withDefaults(
     max: number
     interval: number
     perGraduationSize?: number
-    // options?: ScrollPickerOptionable<T>[]
+    markedValue?: number // 新增標記值陣列
     dragSensitivity?: number
     touchSensitivity?: number
     wheelSensitivity?: number
     emptyText?: string
   }>(),
   {
+    markedValue: undefined,
     perGraduationSize: 3,
     dragSensitivity: 1.7,
     touchSensitivity: 1.7,
@@ -57,11 +57,6 @@ const props = withDefaults(
     emptyText: 'No Options Available',
   },
 )
-
-defineSlots<{
-  default: (props: { option: T }) => VNode
-  empty: (props: { text: string }) => VNode
-}>()
 
 const internalOptions = computed<T[]>(() => {
   const options: T[] = []
@@ -527,6 +522,10 @@ function cancelGesture() {
   gestureState = null
   emit('cancel')
 }
+
+function makerLeft(markedValue: number, optionValue: number) {
+  return 50 + ((markedValue - optionValue) / props.interval) * 100
+}
 // </Cancel>
 </script>
 <template>
@@ -554,11 +553,23 @@ function cancelGesture() {
         >
           <div
             v-if="optionIndex % perGraduationSize === 0"
-            style="position: absolute; top: 0"
+            class="item-label"
+            style="position: absolute; bottom: 0"
           >
-            <slot :option="option">{{ option.value }}</slot>
+            <slot name="label" :option="option">{{ option.value }}</slot>
           </div>
-          <div>●</div>
+          <div class="item-label">●</div>
+          <div
+            v-if="optionIndex === 0"
+            class="vue-horizontal-scroll-picker-marker"
+            :style="{
+              left: `calc(${makerLeft(markedValue, option.value)}% - 1px)`,
+            }"
+          >
+            <div class="vue-horizontal-scroll-picker-marker-value">
+              <slot name="marked" :value="markedValue">{{ markedValue }}</slot>
+            </div>
+          </div>
         </div>
       </template>
     </div>
@@ -572,7 +583,9 @@ function cancelGesture() {
         class="vue-horizontal-scroll-picker-layer-selection"
       >
         <div class="vue-horizontal-scroll-picker-current-value">
-          {{ internalOptions[internalIndex]?.value }}
+          <slot name="current" :value="internalOptions[internalIndex]?.value">{{
+            internalOptions[internalIndex]?.value
+          }}</slot>
         </div>
       </div>
       <div

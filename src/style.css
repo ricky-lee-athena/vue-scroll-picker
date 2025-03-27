@@ -3,7 +3,7 @@
   position: relative;
   width: 100%;
   height: 4em;  /* 增加高度以容納數值顯示 */
-  overflow: visible;  /* 改為 visible 使數值能夠顯示在容器外 */
+  overflow: hidden;
   user-select: none;
 }
 
@@ -22,31 +22,35 @@
 }
 
 .vue-horizontal-scroll-picker-item {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 0 1em;
   height: 100%;
   white-space: nowrap;
+  cursor: pointer;
+}
+
+.vue-horizontal-scroll-picker-item .item-label {
   color: #ffffff;
-  cursor: pointer; /* Add pointer cursor to indicate clickable */
   opacity: 0.5;
   transition: opacity 0.3s ease;
 }
 
-.vue-horizontal-scroll-picker-item[aria-selected='true'] {
+.vue-horizontal-scroll-picker-item[aria-selected='true'] .item-label{
   color: #ffffff;
   opacity: 1;
 }
 
-.vue-horizontal-scroll-picker-item[data-value=''],
-.vue-horizontal-scroll-picker-item[aria-disabled='true'] {
+.vue-horizontal-scroll-picker-item[data-value=''] .item-label,
+.vue-horizontal-scroll-picker-item[aria-disabled='true'] .item-label {
   color: #ccc;
   cursor: not-allowed;
 }
 
-.vue-horizontal-scroll-picker-item[data-value=''][aria-selected='true'],
-.vue-horizontal-scroll-picker-item[aria-disabled='true'][aria-selected='true'] {
+.vue-horizontal-scroll-picker-item[data-value=''][aria-selected='true'] .item-label,
+.vue-horizontal-scroll-picker-item[aria-disabled='true'][aria-selected='true'] .item-label {
   color: #aaa;
 }
 
@@ -86,7 +90,7 @@
 
 .vue-horizontal-scroll-picker-current-value {
   position: absolute;
-  bottom: 0;
+  top: 0;
   color: #fff;
   font-size: 14px;
   font-weight: 700;
@@ -95,3 +99,34 @@
   padding: .1em;
   border-radius: 2px;
 }
+
+.vue-horizontal-scroll-picker-marker {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(189, 189, 189) 0,
+    rgb(189, 189, 189) 4px,
+    transparent 4px,
+    transparent 8px
+  );
+  z-index: 0;
+}
+
+.vue-horizontal-scroll-picker-marker-value {
+  position: absolute;
+  top: 0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  background-color: rgb(189, 189, 189);
+  color: rgb(102, 102, 102);
+  padding: .1em;
+  border-radius: 2px;
+}
+
