@@ -31,16 +31,33 @@
   white-space: nowrap;
   cursor: pointer;
 }
+.vue-horizontal-scroll-picker-item[aria-disabled='true']::after {
+  content: '';
+  position: absolute;
+  left: 1em;
+  width: 100%;
+  top: 0;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.12);
+  z-index: 0;
+}
 
 .vue-horizontal-scroll-picker-item .item-label {
   color: #ffffff;
-  opacity: 0.5;
+  opacity: 0.54;
   transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.vue-horizontal-scroll-picker-item .item-label-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 100%;
+  background-color: #ffffff;
 }
 
 .vue-horizontal-scroll-picker-item[aria-selected='true'] .item-label{
   color: #ffffff;
-  opacity: 1;
 }
 
 .vue-horizontal-scroll-picker-item[data-value=''] .item-label,
