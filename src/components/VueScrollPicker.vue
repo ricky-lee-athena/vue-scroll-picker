@@ -43,6 +43,7 @@ const props = withDefaults(
     interval: number
     perGraduationSize?: number
     markedValue?: number // 新增標記值陣列
+    disabledValue?: ScrollPickerValue[]
     dragSensitivity?: number
     touchSensitivity?: number
     wheelSensitivity?: number
@@ -50,6 +51,7 @@ const props = withDefaults(
   }>(),
   {
     markedValue: undefined,
+    disabledValue: () => [],
     perGraduationSize: 3,
     dragSensitivity: 1.7,
     touchSensitivity: 1.7,
@@ -62,7 +64,8 @@ const internalOptions = computed<T[]>(() => {
   const options: T[] = []
 
   for (let i = props.min; i <= props.max; i += props.interval) {
-    options.push({ value: i } as T)
+    const isDisable = props.disabledValue.some((val) => val === i)
+    options.push({ value: i, disabled: isDisable } as T)
   }
 
   return options
@@ -558,7 +561,7 @@ function makerLeft(markedValue: number, optionValue: number) {
           >
             <slot name="label" :option="option">{{ option.value }}</slot>
           </div>
-          <div class="item-label">●</div>
+          <div class="item-label item-label-dot"></div>
           <div
             v-if="optionIndex === 0"
             class="vue-horizontal-scroll-picker-marker"
