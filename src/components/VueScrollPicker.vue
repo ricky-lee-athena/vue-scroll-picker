@@ -563,7 +563,7 @@ function makerLeft(markedValue: number, optionValue: number) {
           </div>
           <div class="item-label item-label-dot"></div>
           <div
-            v-if="optionIndex === 0"
+            v-if="optionIndex === 0 && markedValue !== undefined"
             class="vue-horizontal-scroll-picker-marker"
             :style="{
               left: `calc(${makerLeft(markedValue, option.value)}% - 1px)`,
